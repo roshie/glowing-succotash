@@ -191,3 +191,47 @@ function logout() {
         error: function (error) {}
     })
  } 
+
+ function checkAnswer(email, answer) {
+    $.ajax({
+        type: "POST",
+        url: "api/check-answer.php",
+        datatype: "html",
+        data: {
+            email: email, 
+            answer: answer
+        },
+        success: function (response) { 
+            response = JSON.parse(response); 
+            if (response == "success") { 
+                 document.getElementById('password-reset').classList.remove('d-none');
+            } else {
+                 document.getElementById('message-error').innerHTML = "The Answer does not match or the email id is incorrect."
+            }
+        }, 
+        error: function (error) {}
+    })
+ }
+
+ function resetPassword(email, password) {
+    $.ajax({
+        type: "POST",
+        url: "endpoints/reset-password.php",
+        datatype: "html",
+        data: {
+            email: email, 
+            password: password, 
+        },
+        success: function (response) { 
+            response = JSON.parse(response); 
+            if (response == "success") 
+                window.location.href = "index.html";
+            else if (response == "invalid") 
+                document.getElementById('message-error').innerHTML = "Invalid Email Id";
+            else {
+                document.getElementById('message-error').innerHTML = "There was a problem while Reseting your password. Please Try again later.";
+            }
+        }, 
+        error: function (error) {}
+    })
+}
