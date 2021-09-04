@@ -8,7 +8,7 @@ $email = $_POST["email"];
 $password = $_POST["password"];
 $answer = $_POST["answer"];
 
-$sql = "SELECT email from user where email= '".$username."'";
+$sql = "SELECT email from user where email= '".$email."'";
 $result = $conn->query($sql);
 $row = mysqli_fetch_assoc($result);
 

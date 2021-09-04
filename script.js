@@ -46,8 +46,11 @@ $(document).ready(() => {
 
             if ( email != "" && password != "")
                 login(email, password);
-            else 
+            else  {
+                document.getElementById('submit').classList.remove('disabled')
+                document.getElementById('loader').classList.add('d-none')
                 document.getElementById('message-error').innerHTML = "One of the fields is empty." 
+            }
         })
 
     } else if (page == "signup.html") { 
@@ -65,12 +68,58 @@ $(document).ready(() => {
             if ( email != "" && password != "" && confirmPassword != "" && answer != "") {
                 if (password === confirmPassword) 
                     signup(email, password, answer);
-                else 
+                else  {
+                    document.getElementById('submit').classList.remove('disabled')
+                    document.getElementById('loader').classList.add('d-none')
                     document.getElementById('message-error').innerHTML = "Passwords does not match";
-            } else 
+                }
+            } else  {
+                document.getElementById('submit').classList.remove('disabled')
+                document.getElementById('loader').classList.add('d-none')
                 document.getElementById('message-error').innerHTML = "One or more fields are empty." 
+            }
         })
     } else if (page == "forget-password.html") {
+
+        document.getElementById("questionform").addEventListener('submit', (e) => {
+            e.preventDefault();
+            document.getElementById('message-error1').innerHTML = "";
+            document.getElementById('submit1').classList.add('disabled')
+            document.getElementById('loader1').classList.remove('d-none')
+            const email = document.getElementById('email').value.trim();
+            const answer = document.getElementById('answer').value.trim();
+
+            if ( email != "" && answer != "") {
+                checkAnswer(email, answer)
+            } else {
+                document.getElementById('submit1').classList.remove('disabled')
+                document.getElementById('loader1').classList.add('d-none')
+                document.getElementById('message-error').innerHTML = "One or more fields are empty." 
+            }
+        })
+
+        document.getElementById("passwordResetForm").addEventListener('submit', (e) => {
+            e.preventDefault();
+            document.getElementById('message-error2').innerHTML = "";
+            document.getElementById('submit2').classList.add('disabled')
+            document.getElementById('loader2').classList.remove('d-none')
+            const password = document.getElementById('password').value.trim(); 
+            const confirmPassword = document.getElementById('confirmPassword').value.trim(); 
+
+            if ( password != "" && confirmPassword != "" ) { 
+                if (password === confirmPassword)
+                    resetPassword(localStorage.email, password)
+                else  {
+                    document.getElementById('submit2').classList.remove('disabled')
+                    document.getElementById('loader2').classList.add('d-none')
+                    document.getElementById('message-error2').innerHTML = "Passwords does not match";
+                }
+            } else  {
+                document.getElementById('submit2').classList.remove('disabled')
+                document.getElementById('loader2').classList.add('d-none')
+                document.getElementById('message-error2').innerHTML = "One or more fields are empty." 
+            }
+        })
 
     }
     
@@ -119,7 +168,7 @@ function login(email, password) {
 function signup(email, password, answer) {
     $.ajax({
         type: "POST",
-        url: "endpoints/sign-up.php",
+        url: "api/sign-up.php",
         datatype: "html",
         data: {
             email: email, 
@@ -207,9 +256,13 @@ function logout() {
         success: function (response) { 
             response = JSON.parse(response); 
             if (response == "success") { 
-                 document.getElementById('password-reset').classList.remove('d-none');
+                localStorage.email = email
+                 document.getElementById('questionform').classList.add('d-none');
+                 document.getElementById('passwordResetForm').classList.remove('d-none');
             } else {
-                 document.getElementById('message-error').innerHTML = "The Answer does not match or the email id is incorrect."
+                document.getElementById('submit1').classList.remove('disabled')
+                document.getElementById('loader1').classList.add('d-none')
+                document.getElementById('message-error1').innerHTML = "The Answer does not match or the email id is incorrect."
             }
         }, 
         error: function (error) {}
@@ -219,7 +272,7 @@ function logout() {
  function resetPassword(email, password) {
     $.ajax({
         type: "POST",
-        url: "endpoints/reset-password.php",
+        url: "api/reset-password.php",
         datatype: "html",
         data: {
             email: email, 
@@ -229,10 +282,15 @@ function logout() {
             response = JSON.parse(response); 
             if (response == "success") 
                 window.location.href = "index.html";
-            else if (response == "invalid") 
-                document.getElementById('message-error').innerHTML = "Invalid Email Id";
+            else if (response == "invalid") {
+                document.getElementById('submit2').classList.remove('disabled')
+                document.getElementById('loader2').classList.add('d-none')
+                document.getElementById('message-error2').innerHTML = "Invalid Email Id";
+            }
             else {
-                document.getElementById('message-error').innerHTML = "There was a problem while Reseting your password. Please Try again later.";
+                document.getElementById('submit2').classList.remove('disabled')
+                document.getElementById('loader2').classList.add('d-none')
+                document.getElementById('message-error2').innerHTML = "There was a problem while Reseting your password. Please Try again later.";
             }
         }, 
         error: function (error) {}

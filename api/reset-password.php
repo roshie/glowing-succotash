@@ -7,7 +7,7 @@ error_reporting(0);
 $email = $_POST["email"];
 $password = $_POST["password"];
 
-$sql = "SELECT email from user where email= '".$username."'";
+$sql = "SELECT email from user where email= '".$email."'";
 $result = $conn->query($sql);
 $row = mysqli_fetch_assoc($result);
 
