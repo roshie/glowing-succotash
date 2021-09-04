@@ -4,10 +4,10 @@ require_once 'config.php';
 error_reporting(0);
 
 $email = $_POST["email"];
-$authToken =$_POST["authToken"];
+$answer =$_POST["answer"];
 
 // Check whether the user is authenticated
-$sql = "SELECT * from user where email = '".$email."' and sessionToken = '".$authToken."'";
+$sql = "SELECT * from user where email = '".$email."' and answer = '".$answer."'";
 $result = $conn->query($sql);
 $row = mysqli_fetch_assoc($result);
 

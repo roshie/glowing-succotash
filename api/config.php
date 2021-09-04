@@ -10,7 +10,7 @@ error_reporting(0);
 $server = "localhost";
 $username = "root";
 $password = "";
-$db = "agridevs";
+$db = "test";
 
 $conn = new mysqli($server, $username, $password, $db);
 

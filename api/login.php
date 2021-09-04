@@ -7,7 +7,7 @@ $email = $_POST["email"];
 $password =$_POST["password"];
 
 
-$sql = "SELECT * from users where email = '".$email."'";
+$sql = "SELECT * from user where email = '".$email."'";
 $result = $conn->query($sql);
 $resultSet = mysqli_fetch_assoc($result); 
 
@@ -17,7 +17,7 @@ if ($resultSet != null) {
     // If the hashed passwords are same
     if ($resultSet["password"] == md5($password)) {
         $auth = generate_string();
-        $sql = $conn->prepare("UPDATE users SET sessionToken = ? where email = ?");
+        $sql = $conn->prepare("UPDATE user SET sessionToken = ? where email = ?");
         $sql->bind_param("ss", $auth, $email);
         if( $sql->execute() ) {
             $output = array("authToken" => $auth);
