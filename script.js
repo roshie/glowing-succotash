@@ -1,24 +1,46 @@
 $(document).ready(() => { 
 
     const page = window.location.pathname.split("/").pop(); 
-    var _checkAuthStatus = checkAuthStatus();
+
+    if ( localStorage.email != null && localStorage.authToken != null) {
+
+        var _checkAuthStatus = checkAuthStatus();
+
+        if (page == "profile.html") { 
+
+            _checkAuthStatus.then((msg) => {
+                if (msg == 'success') {
+                    document.getElementById('email').innerHTML = localStorage.email;
+                }
+            })
+            .catch((msg) => {
+                if (msg == 'fail') {
+                    window.location.href = "index.html";
+                }
+            })
+
+        } else {
+
+            _checkAuthStatus.then((msg) => {
+                if (msg == 'success') {
+                    window.location.href = "profile.html";
+                }
+            })
+            .catch((msg) => {
+                if (msg == 'fail') {
+                    console.log('logged out')
+                }
+            })
+        }
+    } 
 
     if (page == "index.html") { 
-
-        _checkAuthStatus.then((msg) => {
-            if (msg == 'success') {
-                window.location.href = "profile.html";
-            }
-        })
-        .catch((msg) => {
-            if (msg == 'fail') {
-                console.log('logged out')
-            }
-        })
 
         document.getElementById("loginform").addEventListener('submit', (e) => {
             e.preventDefault();
             document.getElementById('message-error').innerHTML = "";
+            document.getElementById('submit').classList.add('disabled')
+            document.getElementById('loader').classList.remove('d-none')
             const email = document.getElementById('email').value.trim();
             const password = document.getElementById('password').value.trim(); 
 
@@ -30,20 +52,11 @@ $(document).ready(() => {
 
     } else if (page == "signup.html") { 
 
-        _checkAuthStatus.then((msg) => {
-            if (msg == 'success') {
-                window.location.href = "profile.html";
-            }
-        })
-        .catch((msg) => {
-            if (msg == 'fail') {
-                console.log('logged out');
-            }
-        })
-
         document.getElementById("signupform").addEventListener('submit', (e) => {
             e.preventDefault();
             document.getElementById('message-error').innerHTML = "";
+            document.getElementById('submit').classList.add('disabled')
+            document.getElementById('loader').classList.remove('d-none')
             const email = document.getElementById('email').value.trim();
             const password = document.getElementById('password').value.trim(); 
             const confirmPassword = document.getElementById('confirmPassword').value.trim(); 
@@ -57,32 +70,8 @@ $(document).ready(() => {
             } else 
                 document.getElementById('message-error').innerHTML = "One or more fields are empty." 
         })
-
-    } else if (page == "profile.html") { 
-
-        _checkAuthStatus.then((msg) => {
-            if (msg == 'success') {
-                document.getElementById('email').innerHTML = localStorage.email;
-            }
-        })
-        .catch((msg) => {
-            if (msg == 'fail') {
-                window.location.href = "index.html";
-            }
-        })
-
     } else if (page == "forget-password.html") {
 
-        _checkAuthStatus.then((msg) => {
-            if (msg == 'success') {
-                window.location.href = "profile.html";
-            }
-        })
-        .catch((msg) => {
-            if (msg == 'fail') {
-                console.log('logged out')
-            }
-        })
     }
     
 });
@@ -102,18 +91,26 @@ function login(email, password) {
             try {
                  response = JSON.parse(response); 
             } catch {
-                 document.getElementById('message-error').innerHTML = "There was a problem logging you in. Please Try again later."; 
+                document.getElementById('submit').classList.remove('disabled')
+                document.getElementById('loader').classList.add('d-none')
+                document.getElementById('message-error').innerHTML = "There was a problem logging you in. Please Try again later."; 
             }
-            if (response == "invalid") 
+            if (response == "invalid") {
+                document.getElementById('submit').classList.remove('disabled')
+                document.getElementById('loader').classList.add('d-none')
                 document.getElementById('message-error').innerHTML = "Invalid Credentials";
+            }
             else if (response.authToken != null) { 
                 localStorage.authToken = response.authToken;
                 localStorage.email = email; 
                 
                 window.location.href = "index.html"; 
             } 
-            else 
-                  document.getElementById('message-error').innerHTML = "There was a problem logging you in. Please Try again later."; 
+            else {
+                document.getElementById('submit').classList.remove('disabled')
+                document.getElementById('loader').classList.add('d-none')
+                document.getElementById('message-error').innerHTML = "There was a problem logging you in. Please Try again later."; 
+            }
         }, 
         error: function (error) {}
     })
@@ -131,10 +128,16 @@ function signup(email, password, answer) {
         },
         success: function (response) { 
             response = JSON.parse(response); 
-            if (response == "exists") 
+            if (response == "exists") {
+                document.getElementById('submit').classList.remove('disabled')
+                document.getElementById('loader').classList.add('d-none')
                 document.getElementById('message-error').innerHTML = "The Account with this email already exists. Try <a href='index.html'>Logging in.</a>";
-            else if (response == "fail") 
+            }
+            else if (response == "fail") {
+                document.getElementById('submit').classList.remove('disabled')
+                document.getElementById('loader').classList.add('d-none')
                 document.getElementById('message-error').innerHTML = "There was a problem while Signing up. Please Try again later."; 
+            }
             else {
                 localStorage.authToken = response.authToken;
                 localStorage.email = email;
@@ -145,15 +148,15 @@ function signup(email, password, answer) {
     })
 }
 
-function checkAuthStatus() {
+function checkAuthStatus() { 
     return new Promise((resolve, reject) => {
         $.ajax({
             type: "POST",
             url: "api/auth-status.php",
             datatype: "html",
             data: {
-                email: email, 
-                authToken: authToken, 
+                email: localStorage.email, 
+                authToken: localStorage.authToken, 
             },
             success: function (response) {  
                 console.log(response)
